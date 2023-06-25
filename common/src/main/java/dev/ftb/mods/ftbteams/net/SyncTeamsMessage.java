@@ -15,17 +15,20 @@ public class SyncTeamsMessage extends BaseS2CMessage {
 	private final ClientTeamManager manager;
 	private final UUID selfTeamID;
 	private final boolean fullSync;
+	private final UUID selfUserID;
 
 	SyncTeamsMessage(FriendlyByteBuf buffer) {
 		manager = new ClientTeamManager(buffer);
 		selfTeamID = buffer.readUUID();
 		fullSync = buffer.readBoolean();
+		selfUserID = buffer.readUUID();
 	}
 
-	public SyncTeamsMessage(ClientTeamManager manager, Team selfTeam, boolean fullSync) {
+	public SyncTeamsMessage(ClientTeamManager manager, Team selfTeam, boolean fullSync, UUID selfUserID) {
 		this.manager = manager;
 		this.selfTeamID = selfTeam.getId();
 		this.fullSync = fullSync;
+		this.selfUserID = selfUserID;
 	}
 
 	@Override
@@ -38,11 +41,12 @@ public class SyncTeamsMessage extends BaseS2CMessage {
 		manager.write(buffer, selfTeamID);
 		buffer.writeUUID(selfTeamID);
 		buffer.writeBoolean(fullSync);
+		buffer.writeUUID(selfUserID);
 	}
 
 	@Override
 	public void handle(NetworkManager.PacketContext context) {
-		ClientTeamManager.syncFromServer(manager, selfTeamID, fullSync);
+		ClientTeamManager.syncFromServer(manager, selfTeamID, fullSync, selfUserID);
 		MyTeamScreen.refreshIfOpen();
 	}
 }

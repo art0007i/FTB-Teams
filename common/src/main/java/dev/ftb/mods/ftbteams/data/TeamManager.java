@@ -362,7 +362,7 @@ public class TeamManager {
 	 * @param selfTeam the player's own team, which could be a party team
 	 */
 	public void syncAllToPlayer(ServerPlayer player, Team selfTeam) {
-		new SyncTeamsMessage(createClientTeamManager(getTeams()), selfTeam, true).sendTo(player);
+		new SyncTeamsMessage(createClientTeamManager(getTeams()), selfTeam, true, player.getUUID()).sendTo(player);
 		new SyncMessageHistoryMessage(selfTeam).sendTo(player);
 		server.getPlayerList().sendPlayerPermissionLevel(player);
 	}
@@ -379,7 +379,7 @@ public class TeamManager {
 		ClientTeamManager manager = createClientTeamManager(Arrays.stream(teams).toList());
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 			Team selfTeam = getPlayerTeam(player);
-			new SyncTeamsMessage(manager, selfTeam, false).sendTo(player);
+			new SyncTeamsMessage(manager, selfTeam, false, player.getUUID()).sendTo(player);
 			if (teams.length > 1) {
 				new SyncMessageHistoryMessage(selfTeam).sendTo(player);
 			}

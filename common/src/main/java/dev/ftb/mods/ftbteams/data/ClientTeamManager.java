@@ -72,13 +72,12 @@ public class ClientTeamManager {
 		}
 	}
 
-	public void initSelfDetails(UUID selfTeamID) {
+	public void initSelfDetails(UUID selfTeamID, UUID selfUserID) {
 		selfTeam = teamMap.get(selfTeamID);
-		UUID userId = Minecraft.getInstance().getUser().getGameProfile().getId();
-		selfKnownPlayer = knownPlayers.get(userId);
+		selfKnownPlayer = knownPlayers.get(selfUserID);
 		if (selfKnownPlayer == null) {
 			FTBTeams.LOGGER.warn("Local player id {} was not found in the known players list [{}]! FTB Teams will not be able to function correctly!",
-					userId, String.join(",", knownPlayers.keySet().stream().map(UUID::toString).toList()));
+					selfUserID, String.join(",", knownPlayers.keySet().stream().map(UUID::toString).toList()));
 		}
 	}
 
@@ -106,10 +105,10 @@ public class ClientTeamManager {
 		invalid = true;
 	}
 
-	public static void syncFromServer(ClientTeamManager syncedData, UUID selfTeamID, boolean fullSync) {
+	public static void syncFromServer(ClientTeamManager syncedData, UUID selfTeamID, boolean fullSync, UUID selfUserID) {
 		if (fullSync) {
 			// complete live team manager invalidation and replacement
-			syncedData.initSelfDetails(selfTeamID);
+			syncedData.initSelfDetails(selfTeamID, selfUserID);
 			if (INSTANCE != null) {
 				INSTANCE.invalidate();
 			}
@@ -131,7 +130,7 @@ public class ClientTeamManager {
 				}
 			});
 			INSTANCE.knownPlayers.putAll(syncedData.knownPlayers);
-			INSTANCE.initSelfDetails(selfTeamID);
+			INSTANCE.initSelfDetails(selfTeamID, selfUserID);
 		}
 
 	}
